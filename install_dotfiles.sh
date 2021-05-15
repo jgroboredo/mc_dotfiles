@@ -14,21 +14,32 @@ for file in "$SCRIPT_DIR/Home"/*; do
 	then
 		echo "$file has already been symlinked"
 		echo "Wish to overwrite?"
-		echo -n "y(yes) / n(no)"
+		echo -n "y(yes) / n(no): "
 		read $ans
 		if [[ $ans==[yY] || $ans==[yY][eE][sS] ]]
 		then
 			echo "Updating symbolic link"
 			ln -sf "$file" "${HOME}/${temp}"
+			echo ""
 		else
 			echo "Skipping"
+			echo ""
 		fi
-		sleep 2
+	elif [[ -f "${HOME}/${temp}" ]]
+	then
+		echo "${file} already exists but it is not symlinked"
+		echo "Backing up original"
+		mv "${HOME}/${temp}" "${HOME}/${temp}_backup"
+		echo "Installing symlink"
+		ln -sf "$file" "${HOME}/${temp}"
+		echo "Done"
+		echo " "
+
 	else
 		echo "Installing $file"
 		ln -sf "$file" "${HOME}/${temp}"
 		echo "Successful"
-		sleep 2
+		echo ""
         fi    
   fi
 done
@@ -42,7 +53,7 @@ for file in "$SCRIPT_DIR/Home/.config"/*; do
 	then
 		echo "$file has already been symlinked"
 		echo "Wish to overwrite?"
-		echo -n "y(yes) / n(no)"
+		echo -n "y(yes) / n(no): "
 		read $ans
 		if [[ $ans==[yY] || $ans==[yY][eE][sS] ]]
 		then
@@ -53,7 +64,6 @@ for file in "$SCRIPT_DIR/Home/.config"/*; do
 			echo "Skipping"
 			echo " "
 		fi
-		sleep 2
 	elif [[ -f "${CONFIG}/${temp}" ]]
 	then
 		echo "${file} already exists but it is not symlinked"
@@ -63,19 +73,46 @@ for file in "$SCRIPT_DIR/Home/.config"/*; do
 		ln -sf "$file" "${CONFIG}/${temp}"
 		echo "Done"
 		echo " "
-		sleep 2
 	else
 		echo "Installing $file"
 		ln -sf "$file" "${CONFIG}/${temp}"
 		echo "Done"
 	        echo " "	
-		sleep 2
         fi    
   else
 	#This deals with directories
 	temp=$(basename "$file")
-	echo "$file"  
-	echo "Basename: $temp"
+        if [[ -L "${CONFIG}/${temp}" ]]
+	then
+		echo "$file has already been symlinked"
+		echo "Wish to overwrite?"
+		echo -n "y(yes) / n(no): "
+		read $ans
+		if [[ $ans==[yY] || $ans==[yY][eE][sS] ]]
+		then
+			echo "Updating symbolic link"
+		        ln -sf "$file" "${CONFIG}/${temp}"
+			echo " "
+		else
+			echo "Skipping"
+			echo " "
+		fi
+	elif [[ -d "${CONFIG}/${temp}" ]]
+	then
+		echo "${file} already exists but it is not symlinked"
+		echo "Backing up original"
+		mv "${CONFIG}/${temp}" "${CONFIG}/${temp}_backup"
+		echo "Installing symlink"
+		ln -sf "$file" "${CONFIG}/${temp}"
+		echo "Done"
+		echo " "
+	else
+		echo "Installing $file"
+		ln -sf "$file" "${CONFIG}/${temp}"
+		echo "Done"
+	        echo " "	
+        fi    
+
   fi
 done
 
